@@ -1,4 +1,7 @@
-define(['crossroads', 'hasher'], function(crossroads, hasher) {
+import crossroads   from 'crossroads';
+import hasher       from 'hasher';
+ 
+export default (function() {
     console.log('loading routes');
     window.isLoggedIn = false;
     
