@@ -113,11 +113,10 @@
             hasher.changed.add(parseHash); //parse hash changes
             hasher.init();
 
+        },
+        set : function(route){
+            hasher.setHash(route);
         }
-
-
-
-
 
     }
 
