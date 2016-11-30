@@ -38,32 +38,55 @@ var processRequest = function (requestUrl, params, isFirst) {
     load(request);
 };
 
+var hasAccess = function (View) {
+    var page = getPageComponent(View);
+    return page.access === 'all' || chirimoya.isLoggedIn();
+};
+
+var getPageComponent = function (view) {
+    if (!view.isPage) {
+        for (var c in view.components) {
+            return getPageComponent(view.components[c]);
+        }
+    }
+    return view;
+}
+
+
 var timesLoaded = 0;
 var load = function (request) {
     var moduleId = getModule(request.controller);
-    console.log('loading up module', moduleId);
+    //console.log('loading up module', moduleId);
     require([moduleId], function (View) {
+        
         if (!View) {
-            console.log('problem loading module')
-            hasher.setHash(loginPage.homePage)
+            console.warn('problem loading module', request)
+            hasher.setHash(settings.homePage);
             return;
         }
+
+        if(!hasAccess(View)){
+            console.warn('not auth to module', request)
+            hasher.setHash(settings.homePage);
+            return;
+        }
+
         timesLoaded++;
-        console.log('loaded module', moduleId);
+        //console.log('loaded module', moduleId);
         var renderView = function () {
-            console.log('view loaded', moduleId);
+            //console.log('view loaded', moduleId);
             timesLoaded = 0;
             currentView = new View({ el: settings.appTarget, data: { request: request } });
         };
         if (currentView) {
-            console.log('tearing down', currentView);
+            //console.log('tearing down', currentView);
             currentView.teardown().then(renderView);
         } else {
             renderView();
         }
     }, function (err) {
         if (timesLoaded < 3) {
-            console.log('page not found', err);
+            console.warn('page not found', err);
             hasher.setHash(settings.homePage);
         }
         else
@@ -73,13 +96,16 @@ var load = function (request) {
 
 };
 
-export default {
+var chirimoya =  {
 
     init: function (routesParam, options) {
         if (typeof routesParam === 'undefined' || routesParam === null) routesParam = ['{controller}'];
         if (!Array.isArray(routesParam)) routesParam = [routesParam];
 
         settings = extend(defaults, options);
+
+        if(typeof this.isLoggedIn !=='function')
+            this.isLoggedIn = function(){ return true; };
 
         routesParam.forEach(function (val) {
             crossroads.addRoute(val);
@@ -89,10 +115,10 @@ export default {
 
         //setup hasher
         function parseHash(newHash, oldHash) {
-            if (!window.isLoggedIn && newHash.indexOf(settings.loginPage) < 0)
-                hasher.setHash(settings.loginPage);
-            else
-                crossroads.parse(newHash);
+            // if (!chirimoya.isLoggedIn() && newHash.indexOf(settings.loginPage) < 0)
+            //     hasher.setHash(settings.loginPage);
+            // else
+            crossroads.parse(newHash);
         }
         hasher.prependHash = '!';
         hasher.initialized.add(parseHash); //parse initial hash
@@ -100,8 +126,11 @@ export default {
         hasher.init();
 
     },
-    set : function(route){
+    set: function (route) {
         hasher.setHash(route);
-    }
+    },
+    isLoggedIn: null
 
-}
+};
+
+export default chirimoya;
