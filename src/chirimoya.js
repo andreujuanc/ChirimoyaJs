@@ -46,7 +46,10 @@ var hasAccess = function (View) {
 var getPageComponent = function (view) {
     if (!view.isPage) {
         for (var c in view.components) {
-            return getPageComponent(view.components[c]);
+            var r = view.components[c];
+            if (r.isPage) {
+                return r;
+            }
         }
     }
     return view;
@@ -58,14 +61,14 @@ var load = function (request) {
     var moduleId = getModule(request.controller);
     //console.log('loading up module', moduleId);
     require([moduleId], function (View) {
-        
+
         if (!View) {
             console.warn('problem loading module', request)
             hasher.setHash(settings.homePage);
             return;
         }
 
-        if(!hasAccess(View)){
+        if (!hasAccess(View)) {
             console.warn('not auth to module', request)
             hasher.setHash(settings.homePage);
             return;
@@ -96,7 +99,7 @@ var load = function (request) {
 
 };
 
-var chirimoya =  {
+var chirimoya = {
 
     init: function (routesParam, options) {
         if (typeof routesParam === 'undefined' || routesParam === null) routesParam = ['{controller}'];
@@ -104,8 +107,8 @@ var chirimoya =  {
 
         settings = extend(defaults, options);
 
-        if(typeof this.isLoggedIn !=='function')
-            this.isLoggedIn = function(){ return true; };
+        if (typeof this.isLoggedIn !== 'function')
+            this.isLoggedIn = function () { return true; };
 
         routesParam.forEach(function (val) {
             crossroads.addRoute(val);
