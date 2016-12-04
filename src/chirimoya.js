@@ -70,7 +70,7 @@ var load = function (request) {
 
         if (!hasAccess(View)) {
             console.warn('not auth to module', request)
-            hasher.setHash(settings.homePage);
+            hasher.setHash(settings.loginPage);
             return;
         }
 
