@@ -2,29 +2,14 @@ import hasher from 'hasher';
 import crossroads from 'crossroads';
 import extend from './extend';
 import defaults from './defaults';
+import historyBack from './core/historyBack';
 
+import getModule from './getModule';
 
 var settings = null;
 var currentView = null;
 var routes = {};
 
-
-var getModule = function (controller) {
-    var pageName = '';
-    if (!controller) return pageName;
-    var pageConfig = { moduleId: controller };// pagesConfig.find(controller);
-    if (typeof pageConfig !== 'undefined' && pageConfig !== null) {
-        pageName = pageConfig.moduleId;
-    }
-    else {
-        pageName = controller;
-    }
-
-    var moduleId = settings.pageFolderBase + '/' + pageName + '/' + pageName;
-    if (moduleId !== null)
-        return moduleId.toLowerCase();
-    return null;
-};
 
 var processRequest = function (requestUrl, params, isFirst) {
     var request = {
@@ -58,7 +43,7 @@ var getPageComponent = function (view) {
 
 var timesLoaded = 0;
 var load = function (request) {
-    var moduleId = getModule(request.controller);
+    var moduleId = getModule(request);
     //console.log('loading up module', moduleId);
     require([moduleId], function (View) {
 
@@ -132,6 +117,7 @@ var chirimoya = {
     set: function (route) {
         hasher.setHash(route);
     },
+    back: historyBack,
     isLoggedIn: null
 
 };
