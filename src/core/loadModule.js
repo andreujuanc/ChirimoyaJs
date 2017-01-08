@@ -49,7 +49,7 @@ var loadClass = function (options) {
                 }
             }
 
-            hasAccess(View)
+            hasAccess(View, moduleId)
                 .then(function(access){
                     processModule(access);
                 }, function (access) {

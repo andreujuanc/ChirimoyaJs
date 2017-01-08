@@ -7,12 +7,12 @@ var processAccess = function(page, access){
     return result;
 };
 
-var hasAccess = function (View) {
+var hasAccess = function (View, moduleId) {
     return new Promise(function (resolve, reject) {
         try {
             var page = getPageComponent(View);
             if (chirimoya.onBeforeHasAccess && typeof chirimoya.onBeforeHasAccess === 'function') {
-                var result = chirimoya.onBeforeHasAccess();
+                var result = chirimoya.onBeforeHasAccess(View, moduleId);
                 if(result.then && typeof result.then ==='function'){
                     return result.then(function(cancelAccess){
                         return resolve(processAccess(page, cancelAccess));

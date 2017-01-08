@@ -11,11 +11,12 @@
 <script>
     require(['chirimoya'], function(chirimoya){
         window.chirimoya = chirimoya; //TODO Self reg
-        chirimoya.onBeforeHasAccess = function(){
+        chirimoya.onBeforeHasAccess = function(View, moduleId){
             return new Promise(function(resolve){
                 console.log('waiting 10 secs');
+                if(moduleId === 'pages/home/home') return resolve(true);
                 setTimeout(function() {
-                    resolve(true);
+                     resolve(true);
                 }, 10000);
             });
         };
