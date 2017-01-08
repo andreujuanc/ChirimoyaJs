@@ -8,13 +8,14 @@
     "demo": "npm build && node demo/app.js"
   },
   "dependencies": {
-    "hasher": "^1.2.0",
-    "crossroads":"^0.12.2"
+    "crossroads": "^0.12.2",
+    "hasher": "^1.2.0"
   },
   "devDependencies": {
     "express": "^4.14.0",
     "requirejs": "^2.3.2",
-    "rollem": "^1.8.0"
+    "rollem": "^1.8.1",
+    "open": "0.0.5"
   },
   "author": "",
   "license": "ISC"

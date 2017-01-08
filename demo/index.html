@@ -10,8 +10,17 @@
 
 <script>
     require(['chirimoya'], function(chirimoya){
+        window.chirimoya = chirimoya; //TODO Self reg
+        chirimoya.onBeforeHasAccess = function(){
+            return new Promise(function(resolve){
+                console.log('waiting 10 secs');
+                setTimeout(function() {
+                    resolve(true);
+                }, 10000);
+            });
+        };
         chirimoya.init();
-        chirimoya.set('test');
+        chirimoya.set('home');
     });
     
 </script>

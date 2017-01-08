@@ -8,5 +8,5 @@ export default [{
     moduleName: 'chirimoya',
     format:'umd',
     sourceMap: false,//TODO change later to 'inline'
-    external: externalDep
+    external: ['crossroads', 'hasher']
 }];
