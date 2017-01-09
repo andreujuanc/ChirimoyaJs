@@ -240,7 +240,7 @@ var chirimoya = {
     },
     history: history,
     back: function(){
-        chirimoya.history.back();
+        return chirimoya.history.back();
     },
     isLoggedIn: null
 
