@@ -48,16 +48,23 @@ var getModuleClass = function(options){
     var settings = options ? options : {}; 
 
     var definition = function (request) {
-        var controller = request.controller;
+       var controller = request.controller;
         var pageName = '';
         if (!controller) return pageName;
 
-        var view = request.action;
-        if (typeof view === 'undefined' || view === null || view === '') {
-            view = controller;
+        if (typeof request.action === 'undefined' || request.action === null || request.action === '') {
+            request.action = controller;
         }
 
-        var moduleId = settings.pageFolderBase + '/' + controller + '/' + view;
+        var parts = [];
+        if(request.module)
+            parts.push(request.module);
+        if(request.controller)
+            parts.push(request.controller);
+        if(request.action)
+            parts.push(request.action);
+
+        var moduleId = settings.pageFolderBase + '/' + parts.join('/');
         if (moduleId !== null)
             return moduleId.toLowerCase();
         return null;
@@ -77,21 +84,37 @@ var getPageComponent = function (view) {
     return view;
 };
 
-var processAccess = function(page, access){
+var _processAccess = function(page, access, isLoggedIn){
+    if(page.access === 'all') return true;
     if(access === false) return false;
-    var result =  page.access === 'all' || window.chirimoya.isLoggedIn();
-    return result;
+    if(isLoggedIn === false) return false;     
+    return access;
+};
+
+var processAccess = function(page, access){
+    var loggedInResult = window.chirimoya.isLoggedIn();
+    if(loggedInResult.then && typeof loggedInResult.then ==='function'){
+        return loggedInResult.then(function(isLoggedIn){
+            return _processAccess(page, access, isLoggedIn);
+        });
+    } 
+    else{
+        return _processAccess(page, access, loggedInResult);
+    }   
 };
 
 var hasAccess = function (View, moduleId) {
     return new Promise(function (resolve, reject) {
         try {
             var page = getPageComponent(View);
+            // if(page.access === 'all'){
+            //     return resolve(true);
+            // }
             if (chirimoya.onBeforeHasAccess && typeof chirimoya.onBeforeHasAccess === 'function') {
                 var result = chirimoya.onBeforeHasAccess(View, moduleId);
                 if(result.then && typeof result.then ==='function'){
-                    return result.then(function(cancelAccess){
-                        return resolve(processAccess(page, cancelAccess));
+                    return result.then(function(accessResult){
+                        return resolve(processAccess(page, accessResult));
                     });
                 } 
                 else{
@@ -122,45 +145,65 @@ var loadClass = function (options) {
             timesLoaded++;
             if (!View) {
                 if(timesLoaded < 3 ) hasher.setHash(settings.homePage);
-                else console.warn('problem loading module', request);
+                else {
+                    timesLoaded = 0;
+                    console.warn('problem loading module', request);
+                }
                 return;
             }
-
-            var processModule = function (access) {
-                
+            var renderView = function (access) {
                 if (!access) {
-                    if(timesLoaded < 3 )  hasher.setHash(settings.loginPage);
-                    else console.warn('not access to module', request);
+                    if(timesLoaded < 3 )  
+                        hasher.setHash(settings.loginPage);
+                    else {
+                        timesLoaded = 0;
+                        console.warn('not access to module', request);
+                    }
                     return;
-                }
-
+                }   
+                timesLoaded = 0;
+                currentView = new View({ el: settings.appTarget, data: { request: request } });
+            };
+            
+            var afterAccessDo = function(){
+                return new Promise(function(resolve, reject){
+                    hasAccess(View, moduleId)
+                        .then(function(access){
+                            resolve(access);
+                        }, function (access) {
+                            resolve(false);
+                        })
+                        .catch(function (access) {
+                            resolve(false);
+                        });
+                });
                 
-                //console.log('loaded module', moduleId);
-                var renderView = function () {
-                    //console.log('view loaded', moduleId);
-                    timesLoaded = 0;
-                    currentView = new View({ el: settings.appTarget, data: { request: request } });
-                };
-                if (currentView) {
-                    //console.log('tearing down', currentView);
-                    if (currentView.teardown && typeof currentView.teardown === 'function')
-                        currentView.teardown().then(renderView);
-                    else
-                        renderView();
-                } else {
-                    renderView();
-                }
             };
 
-            hasAccess(View, moduleId)
-                .then(function(access){
-                    processModule(access);
-                }, function (access) {
-                    processModule(false);
-                })
-                .catch(function (access) {
-                    processModule(false);
-                });
+            var processModule = function (callback) {                  
+                if (currentView && currentView.teardown && typeof currentView.teardown === 'function') {
+                        //window.currentView = currentView;
+                        var element = null;
+                        if(currentView.target.firstElementChild instanceof HTMLElement)
+                            element = currentView.target.firstElementChild;
+                        else (currentView.el.firstElementChild instanceof HTMLElement);
+                            element = currentView.el.firstElementChild;
+                        if(element !== null){
+                            var promises = [];
+                            promises.push(currentView.transition('zoom', element));
+                            promises.push(currentView.teardown());                            
+                            promises.push(afterAccessDo());
+                            Promise.all(promises)
+                                .then(function(values){
+                                    callback(values[2]);
+                                });
+                        }
+                } else {
+                    afterAccessDo().then(callback);
+                }
+            };
+ 
+            processModule(renderView);
 
         }, function (err) {
             if (timesLoaded < 3) {

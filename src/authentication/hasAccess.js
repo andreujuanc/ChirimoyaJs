@@ -12,7 +12,7 @@ var processAccess = function(page, access){
     var loggedInResult = window.chirimoya.isLoggedIn();
     if(loggedInResult.then && typeof loggedInResult.then ==='function'){
         return loggedInResult.then(function(isLoggedIn){
-            return _processAccess(page, access, isLoggedIn)
+            return _processAccess(page, access, isLoggedIn);
         });
     } 
     else{
