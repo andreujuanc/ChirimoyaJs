@@ -66,8 +66,11 @@ var getModuleClass = function(options){
 
         var moduleId = settings.pageFolderBase + '/' + parts.join('/');
         if (moduleId !== null)
-            return moduleId.toLowerCase();
-        return null;
+            request.moduleId = moduleId.toLowerCase();
+        else
+            request.moduleId = null;
+
+        return request.moduleId;
     };
     return definition;
 };
