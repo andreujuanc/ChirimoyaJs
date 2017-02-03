@@ -187,17 +187,18 @@ var loadClass = function (options) {
                     if (currentView.target.firstElementChild instanceof HTMLElement)
                         element = currentView.target.firstElementChild;
                     else (currentView.el.firstElementChild instanceof HTMLElement);
-                    element = currentView.el.firstElementChild;
+                        element = currentView.el.firstElementChild;
                     var promises = [];
-                    if (element !== null) {                        
+                    if (element !== null) {
                         promises.push(currentView.transition('zoom', element));
                     }
-                    promises.push(currentView.teardown());
+                    promises.push(currentView.teardown().then(function () { currentView = null; }));
                     promises.push(afterAccessDo());
                     Promise.all(promises)
                         .then(function (values) {
-                            callback(values[2]);
+                            callback(values[promises.length - 1]);
                         });
+
                 } else {
                     afterAccessDo().then(callback);
                 }
