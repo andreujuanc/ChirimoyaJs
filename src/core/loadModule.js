@@ -18,7 +18,7 @@ var loadClass = function (options) {
         require([moduleId], function (View) {
             timesLoaded++;
             if (!View) {
-                if(timesLoaded < 3 ) hasher.setHash(settings.homePage);
+                if (timesLoaded < 3) hasher.setHash(settings.homePage);
                 else {
                     timesLoaded = 0;
                     console.warn('problem loading module', request);
@@ -27,22 +27,22 @@ var loadClass = function (options) {
             }
             var renderView = function (access) {
                 if (!access) {
-                    if(timesLoaded < 3 )  
+                    if (timesLoaded < 3)
                         hasher.setHash(settings.loginPage);
                     else {
                         timesLoaded = 0;
                         console.warn('not access to module', request);
                     }
                     return;
-                }   
+                }
                 timesLoaded = 0;
                 currentView = new View({ el: settings.appTarget, data: { request: request } });
             };
-            
-            var afterAccessDo = function(){
-                return new Promise(function(resolve, reject){
+
+            var afterAccessDo = function () {
+                return new Promise(function (resolve, reject) {
                     hasAccess(View, moduleId)
-                        .then(function(access){
+                        .then(function (access) {
                             resolve(access);
                         }, function (access) {
                             resolve(false);
@@ -51,32 +51,33 @@ var loadClass = function (options) {
                             resolve(false);
                         });
                 });
-                
+
             };
 
-            var processModule = function (callback) {                  
+            var processModule = function (callback) {
                 if (currentView && currentView.teardown && typeof currentView.teardown === 'function') {
-                        //window.currentView = currentView;
-                        var element = null;
-                        if(currentView.target.firstElementChild instanceof HTMLElement)
-                            element = currentView.target.firstElementChild;
-                        else (currentView.el.firstElementChild instanceof HTMLElement)
-                            element = currentView.el.firstElementChild;
-                        if(element !== null){
-                            var promises = [];
-                            promises.push(currentView.transition('zoom', element));
-                            promises.push(currentView.teardown());                            
-                            promises.push(afterAccessDo());
-                            Promise.all(promises)
-                                .then(function(values){
-                                    callback(values[2]);
-                                });
-                        }
+                    //window.currentView = currentView;
+                    var element = null;
+                    if (currentView.target.firstElementChild instanceof HTMLElement)
+                        element = currentView.target.firstElementChild;
+                    else (currentView.el.firstElementChild instanceof HTMLElement)
+                    element = currentView.el.firstElementChild;
+                    var promises = [];
+                    if (element !== null) {
+                        promises.push(currentView.transition('zoom', element));
+                    }
+                    promises.push(currentView.teardown().then(function () { currentView = null; }));
+                    promises.push(afterAccessDo());
+                    Promise.all(promises)
+                        .then(function (values) {
+                            callback(values[promises.length - 1]);
+                        });
+
                 } else {
                     afterAccessDo().then(callback);
                 }
             };
- 
+
             processModule(renderView);
 
         }, function (err) {
