@@ -58,10 +58,12 @@ var loadClass = function (options) {
                 if (currentView && currentView.teardown && typeof currentView.teardown === 'function') {
                     //window.currentView = currentView;
                     var element = null;
-                    if (currentView.target.firstElementChild instanceof HTMLElement)
+
+                    if (currentView.target && currentView.target.firstElementChild instanceof HTMLElement)
                         element = currentView.target.firstElementChild;
-                    else (currentView.el.firstElementChild instanceof HTMLElement)
+                    else if(currentView.el.firstElementChild instanceof HTMLElement);
                         element = currentView.el.firstElementChild;
+
                     var promises = [];
                     if (element !== null) {
                         promises.push(currentView.transition('zoom', element));
