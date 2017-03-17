@@ -65,9 +65,9 @@ var loadClass = function (options) {
                         element = currentView.el.firstElementChild;
 
                     var promises = [];
-                    if (element !== null) {
-                        promises.push(currentView.transition('zoom', element));
-                    }
+                    // if (element !== null) {
+                    //     promises.push(currentView.transition('zoom', element));
+                    // }
                     promises.push(currentView.teardown().then(function () { currentView = null; }));
                     promises.push(afterAccessDo());
                     Promise.all(promises)
