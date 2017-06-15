@@ -66,7 +66,9 @@ var getModuleClass = function(options){
         if(request.action)
             parts.push(request.action);
 
-        var moduleId = settings.pageFolderBase + '/' + request.requestUrl;//+ parts.join('/');
+        var moduleId = settings.pageFolderBase + '/' 
+                //+ request.requestUrl;
+                + parts.join('/');
         if (moduleId !== null)
             request.moduleId = moduleId.toLowerCase();
         else
