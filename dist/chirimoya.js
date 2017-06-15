@@ -1,7 +1,7 @@
 (function (global, factory) {
-    typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('hasher'), require('crossroads')) :
-    typeof define === 'function' && define.amd ? define(['hasher', 'crossroads'], factory) :
-    (global.chirimoya = factory(global.hasher,global.crossroads));
+	typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory(require('hasher'), require('crossroads')) :
+	typeof define === 'function' && define.amd ? define(['hasher', 'crossroads'], factory) :
+	(global.chirimoya = factory(global.hasher,global.crossroads));
 }(this, (function (hasher,crossroads) { 'use strict';
 
 hasher = 'default' in hasher ? hasher['default'] : hasher;
@@ -55,8 +55,10 @@ var getModuleClass = function(options){
         if (typeof request.action === 'undefined' || request.action === null || request.action === '') {
             request.action = controller;
         }
-
+        //NEW VERSION
         var parts = [];
+        if (request.folder)
+            parts.push(request.folder);
         if(request.module)
             parts.push(request.module);
         if(request.controller)
@@ -64,7 +66,7 @@ var getModuleClass = function(options){
         if(request.action)
             parts.push(request.action);
 
-        var moduleId = settings.pageFolderBase + '/' + parts.join('/');
+        var moduleId = settings.pageFolderBase + '/' + request.requestUrl;//+ parts.join('/');
         if (moduleId !== null)
             request.moduleId = moduleId.toLowerCase();
         else
@@ -187,14 +189,16 @@ var loadClass = function (options) {
                 if (currentView && currentView.teardown && typeof currentView.teardown === 'function') {
                     //window.currentView = currentView;
                     var element = null;
-                    if (currentView.target.firstElementChild instanceof HTMLElement)
+
+                    if (currentView.target && currentView.target.firstElementChild instanceof HTMLElement)
                         element = currentView.target.firstElementChild;
-                    else (currentView.el.firstElementChild instanceof HTMLElement);
+                    else if(currentView.el.firstElementChild instanceof HTMLElement);
                         element = currentView.el.firstElementChild;
+
                     var promises = [];
-                    if (element !== null) {
-                        promises.push(currentView.transition('zoom', element));
-                    }
+                    // if (element !== null) {
+                    //     promises.push(currentView.transition('zoom', element));
+                    // }
                     promises.push(currentView.teardown().then(function () { currentView = null; }));
                     promises.push(afterAccessDo());
                     Promise.all(promises)
@@ -233,6 +237,24 @@ var processRequestClass = function (options) {
         var request = {
             requestUrl: requestUrl
         };
+        
+        var getFolder = function (a, b) {
+            var i = 0, j = 0;
+            while (j < b.length) {
+                if (a[j] != b[j])
+                    break
+                j++;
+            }
+            if (j === 0) return null;
+            var result = a.substring(0, j);
+            if (result.endsWith('/'))
+                result = result.substr(0, result.length - 1);
+            return result;
+        };
+
+        var folder = getFolder(params.params.input, params.route._pattern);
+        if (folder !== null)
+            request.folder = folder;
 
         params.route._paramsIds.forEach(function (paramId, index) {
             request[paramId] = params.params[index];
