@@ -10,7 +10,7 @@ var getModuleClass = function(options){
         if (typeof request.action === 'undefined' || request.action === null || request.action === '') {
             request.action = controller;
         }
-
+        //NEW VERSION
         var parts = [];
         if (request.folder)
             parts.push(request.folder);
