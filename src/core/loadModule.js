@@ -14,8 +14,13 @@ var loadClass = function (options) {
     var timesLoaded = 0;
     var definition = function (request) {
         var moduleId = getModule(request);
-        //console.log('loading up module', moduleId);
-        require([moduleId], function (View) {
+        //Without 'pages/' webpack gets lost and fails to load dynamic modules:
+        // resolve: {
+        //     alias: {
+        //          pages: path.resolve(__dirname, '<path to include>')
+        //     }
+        // }
+        require(['pages/' + moduleId], function (View) {
             timesLoaded++;
             if (!View) {
                 if (timesLoaded < 3) hasher.setHash(settings.homePage);
