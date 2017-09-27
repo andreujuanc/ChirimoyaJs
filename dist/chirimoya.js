@@ -14,7 +14,7 @@ var extend = function (obj1, obj2) {
     return obj3;
 };
 
-var defaultOpt$1= {
+var defaults= {
         homePage: 'home',
         loginPage: 'login',
         pageFolderBase: 'pages',
@@ -285,7 +285,7 @@ var chirimoya = {
         
         window.chirimoya = chirimoya;
 
-        settings = extend(defaultOpt$1, options);
+        settings = extend(defaults, options);
 
         if (typeof this.isLoggedIn !== 'function')
             this.isLoggedIn = function () { return true; };
