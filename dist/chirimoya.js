@@ -14,18 +14,18 @@ var extend = function (obj1, obj2) {
     return obj3;
 };
 
-var defaultOpt= {
+var defaultOpt$1= {
         homePage: 'home',
         loginPage: 'login',
         pageFolderBase: 'pages',
         appTarget: '#app'
     };
 
-var historyData = [];
+var historyData$1 = [];
 var history = {
     add: function (newHash, oldHash) {
 
-        historyData.push({
+        historyData$1.push({
             location: document.location,
             hash: newHash,
             previousHash: oldHash
@@ -33,9 +33,9 @@ var history = {
     },
     back: function () {
 
-        var prev = historyData[historyData.length - 2];
+        var prev = historyData$1[historyData$1.length - 2];
         if (prev && prev.location.host === document.location.host) {
-            historyData.splice(historyData.length - 2);
+            historyData$1.splice(historyData$1.length - 2);
             window.history.back();
             return false;
         }
@@ -147,8 +147,13 @@ var loadClass = function (options) {
     var timesLoaded = 0;
     var definition = function (request) {
         var moduleId = getModule(request);
-        //console.log('loading up module', moduleId);
-        require([moduleId], function (View) {
+        //Without 'pages/' webpack gets lost and fails to load dynamic modules:
+        // resolve: {
+        //     alias: {
+        //          pages: path.resolve(__dirname, '<path to include>')
+        //     }
+        // }
+        require(['pages/' + moduleId], function (View) {
             timesLoaded++;
             if (!View) {
                 if (timesLoaded < 3) hasher.setHash(settings.homePage);
@@ -280,7 +285,7 @@ var chirimoya = {
         
         window.chirimoya = chirimoya;
 
-        settings = extend(defaultOpt, options);
+        settings = extend(defaultOpt$1, options);
 
         if (typeof this.isLoggedIn !== 'function')
             this.isLoggedIn = function () { return true; };
@@ -296,6 +301,8 @@ var chirimoya = {
             // if (!chirimoya.isLoggedIn() && newHash.indexOf(settings.loginPage) < 0)
             //     hasher.setHash(settings.loginPage);
             // else
+            if ((newHash === '' || newHash === null || typeof newHash === 'undefined') && historyData.length === 0)
+                chirimoya.set(defaultOpt.homePage);
             history.add(newHash, oldHash);
             crossroads.parse(newHash);
         }
