@@ -302,7 +302,7 @@ var chirimoya = {
             //     hasher.setHash(settings.loginPage);
             // else
             if ((newHash === '' || newHash === null || typeof newHash === 'undefined') && history.historyData.length === 0)
-                chirimoya.set(defaultOpt.homePage);
+                chirimoya.set(defaults.homePage);
             history.add(newHash, oldHash);
             crossroads.parse(newHash);
         }
