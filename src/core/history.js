@@ -1,8 +1,9 @@
-var historyData = [];
+
 var history = {
+    historyData: [],
     add: function (newHash, oldHash) {
 
-        historyData.push({
+        history.historyData.push({
             location: document.location,
             hash: newHash,
             previousHash: oldHash
@@ -10,9 +11,9 @@ var history = {
     },
     back: function () {
 
-        var prev = historyData[historyData.length - 2];
+        var prev = history.historyData[history.historyData.length - 2];
         if (prev && prev.location.host === document.location.host) {
-            historyData.splice(historyData.length - 2);
+            history.historyData.splice(history.historyData.length - 2);
             window.history.back();
             return false;
         }

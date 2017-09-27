@@ -21,11 +21,11 @@ var defaultOpt$1= {
         appTarget: '#app'
     };
 
-var historyData$1 = [];
 var history = {
+    historyData: [],
     add: function (newHash, oldHash) {
 
-        historyData$1.push({
+        history.historyData.push({
             location: document.location,
             hash: newHash,
             previousHash: oldHash
@@ -33,9 +33,9 @@ var history = {
     },
     back: function () {
 
-        var prev = historyData$1[historyData$1.length - 2];
+        var prev = history.historyData[history.historyData.length - 2];
         if (prev && prev.location.host === document.location.host) {
-            historyData$1.splice(historyData$1.length - 2);
+            history.historyData.splice(history.historyData.length - 2);
             window.history.back();
             return false;
         }
@@ -301,7 +301,7 @@ var chirimoya = {
             // if (!chirimoya.isLoggedIn() && newHash.indexOf(settings.loginPage) < 0)
             //     hasher.setHash(settings.loginPage);
             // else
-            if ((newHash === '' || newHash === null || typeof newHash === 'undefined') && historyData.length === 0)
+            if ((newHash === '' || newHash === null || typeof newHash === 'undefined') && history.historyData.length === 0)
                 chirimoya.set(defaultOpt.homePage);
             history.add(newHash, oldHash);
             crossroads.parse(newHash);
