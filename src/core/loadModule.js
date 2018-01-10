@@ -21,6 +21,8 @@ var loadClass = function (options) {
         //     }
         // }
         require(['pages/' + moduleId], function (View) {
+            if(View.__esModule === true) //GOTTA LOVE WEBPACK....
+                View = View.default;
             timesLoaded++;
             if (!View) {
                 if (timesLoaded < 3) hasher.setHash(settings.homePage);
