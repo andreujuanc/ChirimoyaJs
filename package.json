@@ -1,17 +1,24 @@
 {
-  "name": "ChirimoyaJs",
-  "version": "1.0.0",
+  "name": "chirimoyajs",
+  "version": "2.0.0",
   "description": "",
   "main": "dist/chirimoya.js",
   "scripts": {
     "build": "rollem",
-    "demo": "npm build && node demo/app.js"
+    "tscwatch": "tsc --watch",
+    "rollemwatch": "rollem --watch",
+    "dev": "concurrently --kill-others \"npm run tscwatch\"  \"npm run rollemwatch\" \"npm run demo\" ",
+    "demo": "node demo/app.js"
   },
   "dependencies": {
+    "@types/es6-promise": "^3.3.0",
+    "@types/promise": "^7.1.30",
+    "@types/requirejs": "^2.1.31",
     "crossroads": "^0.12.2",
     "hasher": "^1.2.0"
   },
   "devDependencies": {
+    "concurrently": "^3.5.1",
     "express": "^4.14.0",
     "requirejs": "^2.3.2",
     "rollem": "^1.8.1",

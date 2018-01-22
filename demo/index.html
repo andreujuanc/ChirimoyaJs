@@ -9,9 +9,17 @@
 </div>
 
 <script>
-    require(['chirimoya'], function(chirimoya){
-        window.chirimoya = chirimoya; //TODO Self reg
-        chirimoya.onBeforeHasAccess = function(View, moduleId){
+    require(['chirimoya', 'crossroads','hasher'], function(Chirimoya, crossroads, hasher){
+        var chiri = new Chirimoya(null, {
+            router: 1,
+            routerParams: {
+                crossroads:crossroads,
+                hasher: hasher
+            }
+        });
+      
+        window.chiri = chiri; //TODO Self reg
+        chiri.onBeforeHasAccess = function(View, moduleId){
             return new Promise(function(resolve){
                 console.log('waiting 10 secs');
                 if(moduleId === 'pages/home/home') return resolve(true);
@@ -20,8 +28,8 @@
                 }, 10000);
             });
         };
-        chirimoya.init();
-        chirimoya.set('home');
+        //chirimoya.init();
+        chiri.set('home');
     });
     
 </script>
